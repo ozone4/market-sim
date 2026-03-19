@@ -30,17 +30,17 @@ from sim.agents.models import (
 )
 
 # ─── Income distribution ─────────────────────────────────────────────────────
-# Greater Victoria CMA (2021 Census, Table 11-10-0190-01, ~+12% for 2024 dollars)
-# Keys are (min, max) inclusive bands; values are fraction of households.
+# Greater Victoria CMA — Phase 3 calibration for wider spread in $60K-$160K range.
+# Five bands matching target buyer demographics (reduces dogpiling on cheapest props).
+# Target overall distribution:
+#   15% <$60K (observers), 30% $60-100K (starter), 30% $100-160K (mid),
+#   15% $160-250K (premium), 10% >$250K (luxury)
 VICTORIA_INCOME_DISTRIBUTION: dict[tuple[float, float], float] = {
-    (30_000,  50_000): 0.15,
-    (50_000,  75_000): 0.20,
-    (75_000, 100_000): 0.20,
-    (100_000, 125_000): 0.15,
-    (125_000, 150_000): 0.12,
-    (150_000, 200_000): 0.10,
-    (200_000, 300_000): 0.06,
-    (300_000, 500_000): 0.02,
+    (30_000,   60_000): 0.15,
+    (60_000,  100_000): 0.30,
+    (100_000, 160_000): 0.30,
+    (160_000, 250_000): 0.15,
+    (250_000, 500_000): 0.10,
 }
 
 # ─── Household type distribution ─────────────────────────────────────────────
@@ -211,33 +211,37 @@ def _sample_income(
     """
     Sample an income value.
 
-    First selects a quintile band using the type-specific quintile weights,
-    then uniformly samples within that band.
+    Blends the global income distribution (70%) with per-type quintile weights
+    (30%) so the overall population distribution matches the target bands while
+    each household type still skews toward its characteristic income range.
 
     Quintile assignment maps from 5 quintiles to the len(distribution) bands
-    by binning — if distribution has 8 bands, quintiles map to roughly 1-2 bands each.
+    by binning — with 5 bands, each quintile maps 1:1 to a band.
     """
     bands, global_weights = _build_income_bands(distribution)
     n_bands = len(bands)
     n_quintiles = len(quintile_weights)
 
     # Map quintile weights onto the bands (proportional assignment)
-    band_weights = np.zeros(n_bands)
+    quintile_band_weights = np.zeros(n_bands)
     for q_idx, q_weight in enumerate(quintile_weights):
-        # Each quintile covers a proportional slice of the bands
         band_start = int(q_idx / n_quintiles * n_bands)
         band_end = int((q_idx + 1) / n_quintiles * n_bands)
         band_end = max(band_end, band_start + 1)  # At least one band per quintile
         band_end = min(band_end, n_bands)
         for b in range(band_start, band_end):
-            band_weights[b] += q_weight / (band_end - band_start)
+            quintile_band_weights[b] += q_weight / (band_end - band_start)
 
-    # Normalize and sample
-    total_w = band_weights.sum()
-    if total_w <= 0:
-        band_weights = np.array(global_weights)
+    # Normalize quintile component
+    q_total = quintile_band_weights.sum()
+    if q_total > 0:
+        quintile_band_weights /= q_total
     else:
-        band_weights /= total_w
+        quintile_band_weights = np.array(global_weights)
+
+    # Blend: 70% from global distribution (target shape), 30% from per-type quintiles
+    band_weights = 0.70 * np.array(global_weights) + 0.30 * quintile_band_weights
+    band_weights /= band_weights.sum()
 
     cumulative = np.cumsum(band_weights)
     u = rng.random()

@@ -60,6 +60,10 @@ class SimulationConfig:
     # Optional macro shocks
     shocks: list[MacroShock] = field(default_factory=list)
 
+    # Inventory replenishment (fix Phase 2 issue: market clears too fast)
+    replenishment_rate: float = 0.0   # 0.0 = no replenishment; 0.05 = 5% of initial per week
+    replenishment_variance: float = 0.02  # Jitter on per-week entry count
+
 
 # ─── Result types ─────────────────────────────────────────────────────────────
 
@@ -104,6 +108,8 @@ class SimulationResult:
     properties_sold: list[str]
     total_weeks: int
     seed: int
+    # DOM (days on market) per folio at time of sale or end of simulation
+    folio_dom: dict[str, int] = field(default_factory=dict)
 
 
 # ─── Main entry point ─────────────────────────────────────────────────────────
@@ -153,6 +159,8 @@ def run_simulation(
     agents: dict[str, BuyerAgent] = {}
     transaction_log: list[AuctionResult] = []
     weekly_snapshots: list[WeeklySnapshot] = []
+    replenished_folio_ids: set[str] = set()
+    folio_dom_map: dict[str, int] = {}
 
     # Index shocks by week
     shocks_by_week: dict[int, list[MacroShock]] = {}
@@ -186,8 +194,37 @@ def run_simulation(
             if agent.status == AgentStatus.ENTERING:
                 agent.status = AgentStatus.SEARCHING
 
+        # ── 2b. Inventory replenishment ───────────────────────────────────────
+        if config.replenishment_rate > 0 and properties:
+            expected = len(properties) * config.replenishment_rate
+            noise = rng.uniform(-config.replenishment_variance, config.replenishment_variance)
+            mu = max(0.0, expected * (1 + noise))
+            actual_count = int(rng.poisson(mu))
+            for _ in range(actual_count):
+                source_prop = properties[int(rng.integers(len(properties)))]
+                jitter = rng.uniform(-0.05, 0.05)
+                new_assessed = source_prop.assessed_value * (1 + jitter)
+                new_folio = f"{source_prop.folio_id}-R{week}"
+                # Skip if folio already exists (rare but possible with same source+week)
+                if inventory.get_listing(new_folio) is not None:
+                    continue
+                new_prop = source_prop.model_copy(update={
+                    "folio_id": new_folio,
+                    "assessed_value": round(new_assessed / 100) * 100,
+                })
+                markup = config.initial_markup + rng.uniform(
+                    -config.markup_variance, config.markup_variance
+                )
+                markup = max(-0.10, markup)
+                asking = round(new_prop.assessed_value * (1 + markup) / 100) * 100
+                inventory.add_listing(new_prop, asking, week=week)
+                replenished_folio_ids.add(new_folio)
+
         # ── 3. Inventory tick (DOM + price reductions + expirations) ──────────
         expired_ids = inventory.tick(week)
+        # Track DOM for expired properties (DOM at expiry is >= 90)
+        for expired_id in expired_ids:
+            folio_dom_map[expired_id] = 90  # DEFAULT_EXPIRY_DAYS
 
         # ── 4. Matching and offer collection ─────────────────────────────────
         active_listings = inventory.get_active_listings()
@@ -348,8 +385,18 @@ def run_simulation(
 
     # ── Compile final results ──────────────────────────────────────────────────
     sold_folio_ids = {r.folio_id for r in transaction_log}
-    all_folio_ids = {p.folio_id for p in properties}
+    all_folio_ids = {p.folio_id for p in properties} | replenished_folio_ids
     unsold_folio_ids = all_folio_ids - sold_folio_ids
+
+    # Populate folio_dom from sale records and remaining active/unsold listings
+    for record in inventory.get_sales():
+        folio_dom_map[record.folio_id] = record.days_on_market
+    for listing in inventory.get_active_listings():
+        folio_dom_map[listing.property.folio_id] = listing.days_on_market
+    # Any unsold folio not yet in map (expired at 90)
+    for folio_id in unsold_folio_ids:
+        if folio_id not in folio_dom_map:
+            folio_dom_map[folio_id] = 90
 
     # Build agent outcomes
     # Map winning agent → transaction for quick lookup
@@ -393,6 +440,7 @@ def run_simulation(
         properties_sold=sorted(sold_folio_ids),
         total_weeks=config.num_weeks,
         seed=config.seed,
+        folio_dom=folio_dom_map,
     )
 
 
