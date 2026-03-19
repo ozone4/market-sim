@@ -138,3 +138,37 @@ class HealthResponse(BaseModel):
     status: str
     version: str
     tests_passing: int
+
+
+# ─── Scenario / comparative schemas ───────────────────────────────────────────
+
+class ScenarioRequest(BaseModel):
+    """Request body for POST /api/analyze/scenario."""
+    properties: list[dict[str, Any]]
+    scenario: str                              # Key into SCENARIOS
+    config: ConfigSchema = Field(default_factory=ConfigSchema)
+
+
+class PropertyComparisonSchema(BaseModel):
+    folio_id: str
+    assessed_value: float
+    scenarios: dict[str, float]               # scenario_name → clearing_price
+    gap_signals: dict[str, str]               # scenario_name → gap_signal
+    pressure_scores: dict[str, float]         # scenario_name → market_pressure_score
+    most_sensitive_scenario: str
+    sensitivity_range_pct: float
+
+
+class ComparativeReportSchema(BaseModel):
+    """Response for POST /api/analyze/compare."""
+    scenarios_run: list[str]
+    property_comparisons: list[PropertyComparisonSchema]
+    neighbourhood_comparison: dict[str, dict[str, str]]
+    disclaimer: str = DISCLAIMER
+
+
+class CompareRequest(BaseModel):
+    """Request body for POST /api/analyze/compare."""
+    properties: list[dict[str, Any]]
+    scenarios: list[str]                       # e.g. ["baseline_2024", "rate_cut_cycle"]
+    config: ConfigSchema = Field(default_factory=ConfigSchema)

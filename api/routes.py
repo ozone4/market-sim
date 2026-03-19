@@ -17,18 +17,24 @@ from api.schemas import (
     AnalyzeRequest,
     AnalyzeResponse,
     AssessmentGapSchema,
+    CompareRequest,
+    ComparativeReportSchema,
     HealthResponse,
     NeighbourhoodSummarySchema,
+    PropertyComparisonSchema,
+    ScenarioRequest,
     SimulateRequest,
     SimulateResponse,
     StableAnalyzeRequest,
     StabilityResultSchema,
     TransactionSchema,
 )
+from sim.analysis.comparative import run_comparative_analysis
 from sim.analysis.report import generate_report
 from sim.analysis.stability import run_stability_analysis
 from sim.engine.simulation import SimulationConfig, run_simulation
 from sim.properties.loader import load_properties_from_dict
+from sim.scenarios.presets import SCENARIOS, apply_scenario
 
 router = APIRouter(prefix="/api")
 
@@ -173,6 +179,91 @@ def analyze_stable(request: StableAnalyzeRequest) -> AnalyzeResponse:
     stability = run_stability_analysis(properties, config, num_runs=num_runs)
     report = generate_report(result, properties, stability=stability, config=config)
     return _report_to_response(report)
+
+
+@router.post("/analyze/scenario", response_model=AnalyzeResponse)
+def analyze_scenario(request: ScenarioRequest) -> AnalyzeResponse:
+    """
+    Run a predefined scenario and return assessment gap analysis.
+
+    The scenario applies config overrides and a shock schedule on top of the
+    supplied base config, then runs a single simulation.
+    """
+    try:
+        properties = load_properties_from_dict(request.properties)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    if not properties:
+        raise HTTPException(status_code=422, detail="properties list is empty")
+
+    if request.scenario not in SCENARIOS:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unknown scenario {request.scenario!r}. "
+                   f"Available: {sorted(SCENARIOS.keys())}",
+        )
+
+    base_config = _config_from_schema(request.config)
+    config = apply_scenario(SCENARIOS[request.scenario], base_config)
+    result = run_simulation(properties, config)
+    report = generate_report(result, properties, config=config)
+    return _report_to_response(report)
+
+
+@router.post("/analyze/compare", response_model=ComparativeReportSchema)
+def analyze_compare(request: CompareRequest) -> ComparativeReportSchema:
+    """
+    Run multiple scenarios on the same properties and return a comparative report.
+
+    Each scenario is run independently; results are diff'd per property and
+    per neighbourhood.
+    """
+    try:
+        properties = load_properties_from_dict(request.properties)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    if not properties:
+        raise HTTPException(status_code=422, detail="properties list is empty")
+
+    if not request.scenarios:
+        raise HTTPException(status_code=422, detail="scenarios list is empty")
+
+    unknown = [s for s in request.scenarios if s not in SCENARIOS]
+    if unknown:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Unknown scenario(s): {unknown!r}. "
+                   f"Available: {sorted(SCENARIOS.keys())}",
+        )
+
+    base_config = _config_from_schema(request.config)
+
+    try:
+        report = run_comparative_analysis(properties, request.scenarios, base_config)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
+
+    property_comparisons = [
+        PropertyComparisonSchema(
+            folio_id=pc.folio_id,
+            assessed_value=pc.assessed_value,
+            scenarios=pc.scenarios,
+            gap_signals=pc.gap_signals,
+            pressure_scores=pc.pressure_scores,
+            most_sensitive_scenario=pc.most_sensitive_scenario,
+            sensitivity_range_pct=pc.sensitivity_range_pct,
+        )
+        for pc in report.property_comparisons
+    ]
+
+    return ComparativeReportSchema(
+        scenarios_run=report.scenarios_run,
+        property_comparisons=property_comparisons,
+        neighbourhood_comparison=report.neighbourhood_comparison,
+        disclaimer=report.disclaimer,
+    )
 
 
 @router.post("/simulate", response_model=SimulateResponse)

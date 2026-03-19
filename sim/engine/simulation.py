@@ -64,6 +64,9 @@ class SimulationConfig:
     replenishment_rate: float = 0.0   # 0.0 = no replenishment; 0.05 = 5% of initial per week
     replenishment_variance: float = 0.02  # Jitter on per-week entry count
 
+    # Performance: cap properties evaluated per agent per week
+    max_matches_per_agent: int = 10   # Prevents O(agents × listings) blowup
+
 
 # ─── Result types ─────────────────────────────────────────────────────────────
 
@@ -231,6 +234,11 @@ def run_simulation(
         offers_by_property: dict[str, list[Offer]] = {}
         offers_this_week = 0
 
+        # Pre-build sorted price index for fast affordability pre-filtering
+        # Agents whose max_price < cheapest listing can skip matching entirely
+        sorted_listings = sorted(active_listings, key=lambda l: l.current_asking)
+        min_listing_price = sorted_listings[0].current_asking if sorted_listings else 0.0
+
         # Agents in LOST_BID from last week re-enter as SEARCHING
         for agent in agents.values():
             if agent.status == AgentStatus.LOST_BID:
@@ -240,7 +248,19 @@ def run_simulation(
             if agent.status not in (AgentStatus.SEARCHING, AgentStatus.ADJUSTING):
                 continue
 
-            matches = find_matches(agent, active_listings, market_context)
+            # Pre-filter: skip agents who can't afford even the cheapest listing
+            agent_max = agent.preferences.max_price
+            if agent_max is not None:
+                stretch = 1.0 + agent.behavior.max_bid_stretch
+                if agent_max * stretch < min_listing_price:
+                    continue
+
+            matches = find_matches(
+                agent,
+                sorted_listings,
+                market_context,
+                max_results=config.max_matches_per_agent,
+            )
             action = agent_weekly_action(agent, matches, market_context, rng)
 
             if action.action_type == ActionType.EXIT:
