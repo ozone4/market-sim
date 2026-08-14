@@ -2,7 +2,7 @@
 
 ## Context
 
-You are working on `~/Projects/market-sim/`, a multi-agent real estate market simulation engine for BC Assessment validation. Phases 1 and 2 are complete (122 tests passing). The simulation runs 500 demographically-sampled buyer agents across 26 weeks against property inventories, producing emergent bidding wars, price reductions, and market clearing behavior.
+You are working on `~/Projects/market-sim/`, a multi-agent real estate market simulation engine for independent assessed-value analysis. Phases 1 and 2 are complete (122 tests passing). The simulation runs 500 demographically-sampled buyer agents across 26 weeks against property inventories, producing emergent bidding wars, price reductions, and market clearing behavior.
 
 **What exists:**
 - `sim/agents/` — financial.py (Canadian mortgage math), generator.py (census demographics), models.py (BuyerAgent, 8 HouseholdTypes), preferences.py (PropertyScore 0-100), strategy.py (weekly action + bid calculation)
@@ -22,7 +22,7 @@ You are working on `~/Projects/market-sim/`, a multi-agent real estate market si
 
 ### 1. Assessment Gap Analysis (`sim/analysis/assessment_gap.py`)
 
-Compare simulation clearing prices to BC Assessment values.
+Compare simulation clearing prices to assessed property values.
 
 ```python
 @dataclass

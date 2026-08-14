@@ -2,7 +2,7 @@
 
 ## Context
 
-You are working on `~/Projects/market-sim/`, a multi-agent real estate market simulation engine for BC Assessment validation. Phases 1-3 are complete (156 tests passing). The system has:
+You are working on `~/Projects/market-sim/`, a multi-agent real estate market simulation engine for independent assessed-value analysis. Phases 1-3 are complete (156 tests passing). The system has:
 
 - Agent generation (census demographics, Canadian mortgage math, 8 household types)
 - Market simulation (weekly ticks, matching, bidding wars, price reductions, auctions)
