@@ -1,6 +1,6 @@
 # Market Simulation Engine — Project Status
 
-**Project:** BC Assessment Market Pressure Analysis Tool  
+**Project:** Independent Market Pressure Analysis Tool
 **Path:** `~/Projects/market-sim/`  
 **Started:** March 18, 2026  
 **Status:** v1 Complete — 187 tests passing  
@@ -15,7 +15,7 @@ A multi-agent Monte Carlo simulation that models realistic buyer behaviour in th
 What emerges:
 - **Underpriced properties** get swarmed with offers, bidding wars, and fast sales
 - **Overpriced properties** sit, accumulate days-on-market, and take price reductions
-- **Assessment gaps** become visible when simulated clearing prices diverge from BC Assessment values
+- **Assessment gaps** become visible when simulated clearing prices diverge from assessed property values
 
 The primary use case is **assessment validation**: identifying properties whose assessed values may warrant reassessment review, and detecting systemic under- or over-assessment at the neighbourhood level.
 
@@ -55,7 +55,7 @@ market-sim/
 │   │   ├── loader.py         JSON ingestion with Pydantic v2 validation
 │   │   └── models.py         Property, Listing, Location, Features
 │   ├── analysis/
-│   │   ├── assessment_gap.py Per-property gap signal vs BC Assessment
+│   │   ├── assessment_gap.py Per-property gap signal vs property assessment
 │   │   ├── neighbourhood.py  Neighbourhood-level systemic signal aggregation
 │   │   ├── stability.py      Multi-seed consistency measurement
 │   │   ├── comparative.py    Side-by-side scenario comparison
@@ -117,7 +117,7 @@ market-sim/
 ### Phase 3 — Assessment Integration (156 tests, +34 new)
 *Commit: `cfe7021`*
 
-- **Assessment gap analysis** — Compare simulated clearing price to BC Assessment value. Gap signal at ±8% threshold (under_assessed / over_assessed / within_tolerance). Confidence levels (high/medium/low) based on offer count and DOM. Market pressure score 0-10. Review recommendation (flag_for_review / within_norms / data_insufficient).
+- **Assessment gap analysis** — Compare simulated clearing price to assessed property value. Gap signal at ±8% threshold (under_assessed / over_assessed / within_tolerance). Confidence levels (high/medium/low) based on offer count and DOM. Market pressure score 0-10. Review recommendation (flag_for_review / within_norms / data_insufficient).
 - **Neighbourhood aggregation** — Roll up property signals to neighbourhood level. Systemic signal detection: >60% same direction = systemic_under/over, >30% each = mixed, else within_norms.
 - **Multi-run stability** — Run simulation N times with different seeds. Measure signal agreement percentage. Classify: stable (>80%), moderate (60-80%), unstable (<60%).
 - **Report generator** — Full AnalysisReport with property results, neighbourhood summaries, stability, aggregates, and disclaimer.
@@ -223,7 +223,7 @@ FLAGGED FOR REVIEW (6 properties)
 
 ## What's Not Built Yet
 
-- **Real BC Assessment data integration** — Currently using synthetic sample data. Needs real folio data, assessed values, and historical sales for calibration.
+- **Real assessment-data integration** — Currently using synthetic sample data. Needs real folio data, assessed values, and historical sales for calibration.
 - **Calibration against historical sales** — The `re-simulation` project (also built today, `~/Projects/re-simulation/`) has calibration infrastructure (MAPE, bias, coverage). Could be ported.
 - **Seller agent behaviour** — Currently sellers are passive (auto-accept/reject by ratio). Active sellers who adjust expectations would add realism.
 - **Rental market** — Only models purchase market

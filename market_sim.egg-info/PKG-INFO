@@ -1,7 +1,7 @@
 Metadata-Version: 2.4
 Name: market-sim
 Version: 0.1.0
-Summary: Multi-agent real estate market simulation for BC Assessment validation
+Summary: Multi-agent real estate market simulation for independent assessed-value analysis
 Requires-Python: >=3.9
 Requires-Dist: fastapi>=0.104.0
 Requires-Dist: uvicorn>=0.24.0

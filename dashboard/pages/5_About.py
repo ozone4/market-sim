@@ -9,7 +9,7 @@ st.set_page_config(page_title="About — Market Sim", page_icon="🏠", layout="
 
 # Sidebar header
 st.sidebar.markdown("## 🏠 Market Simulation Engine")
-st.sidebar.markdown("**BC Assessment Validation Tool**")
+st.sidebar.markdown("**Independent Assessment Analysis Tool**")
 st.sidebar.divider()
 
 _ROOT = Path(__file__).parent.parent.parent  # project root
@@ -20,14 +20,14 @@ st.title("About Market Sim")
 st.markdown("""
 ## Project Description
 
-**market-sim** is a multi-agent real estate market simulation engine for BC Assessment validation.
+**market-sim** is a multi-agent real estate market simulation engine for independent assessed-value analysis.
 
 The system generates demographically realistic buyer agents that compete for properties over a
 configurable time horizon. Emergent market signals — bidding wars, price reductions,
-days-on-market accumulation — are compared against BC Assessment values to identify properties
+days-on-market accumulation — are compared against assessed property values to identify properties
 that may warrant reassessment review.
 
-Data is sourced from BC Assessment rolls (30- and 220-property Victoria CMA samples) and
+Data is sourced from property assessment datasets (30- and 220-property Victoria CMA samples) and
 demographic weights are derived from the 2021 Statistics Canada Census for Greater Victoria CMA,
 adjusted to 2024 dollars (~+12% inflation).
 
@@ -38,7 +38,7 @@ st.divider()
 
 st.markdown("## How It Works")
 st.markdown("""
-1. **Property loading** — BC Assessment JSON properties are validated with Pydantic v2 models.
+1. **Property loading** — property assessment records are validated with Pydantic v2 models.
 2. **Agent generation** — Buyer agents are sampled from census-derived income and household-type
    distributions. Each agent receives a financial qualification (max purchase price) computed
    using the Canadian stress test (GDS/TDS ratios).
@@ -49,7 +49,7 @@ st.markdown("""
    - Agents score properties via a 0–100 preference model and decide to bid, wait, or adjust.
    - Offer resolution: single-offer acceptance/counter/rejection logic or multi-offer sealed-bid
      escalation (up to 3 rounds).
-4. **Gap analysis** — Each sold property's clearing price is compared to its BC Assessment value.
+4. **Gap analysis** — Each sold property's clearing price is compared to its assessed property value.
    A gap >8% flags under-assessment; a gap <-8% flags over-assessment.
 5. **Neighbourhood aggregation** — If >60% of a neighbourhood's properties share one signal,
    a systemic signal is raised.
@@ -80,7 +80,7 @@ market-sim/
 │   └── analysis/     — Gap analysis, neighbourhood aggregation, stability, reports
 ├── api/              — FastAPI REST service
 ├── dashboard/        — Streamlit visual interface (this app)
-├── data/properties/  — BC Assessment sample datasets
+├── data/properties/  — sample property assessment datasets
 └── tests/            — pytest test suite (187 tests)
 ```
 """)
@@ -102,7 +102,8 @@ st.markdown("""
 st.divider()
 
 st.error(
-    "**Disclaimer:** Results produced by this tool are indicators for assessment review "
+    "**Disclaimer:** This is an independent software project and is not affiliated with or "
+    "endorsed by any government assessment authority. Results produced by this tool are indicators for assessment review "
     "prioritization only — they are not appraisal conclusions, market value determinations, "
     "or legal assessments. Simulation outputs are emergent from stylized agent behavior and "
     "should not be used as the sole basis for any assessment decision. All amounts in CAD."

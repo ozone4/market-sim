@@ -2,7 +2,7 @@
 Neighbourhood-level aggregation of assessment gap results.
 
 Rolls up property-level gap signals to produce systemic assessment signals
-at the neighbourhood level. Used to identify areas where BC Assessment
+at the neighbourhood level. Used to identify areas where assessed property
 values may be systematically diverging from market behavior.
 
 All amounts in CAD.

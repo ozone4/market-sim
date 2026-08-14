@@ -3,7 +3,7 @@ Property data loader — ingests properties from JSON files.
 
 Simple for now: loads a JSON array of property objects and validates
 each against the Property pydantic model. Designed to be extensible
-to CSV/BC Assessment database formats later.
+to CSV/property assessment database formats later.
 
 Expected JSON format: a list of property dicts, each matching the
 Property model schema (see sim/properties/models.py).

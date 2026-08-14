@@ -31,7 +31,7 @@ diverge from simulated market clearing behaviour.
 
 5. **Data-driven, not opinion-driven.** Agent demographics from census data. Income
    distributions from StatsCan. Interest rates from Bank of Canada. Property data from
-   BC Assessment rolls. We parameterize from reality, not from guesses.
+   property assessment datasets. We parameterize from reality, not from guesses.
 
 ---
 
@@ -55,7 +55,7 @@ market-sim/
 │   │   └── shocks.py          # Macro events: rate changes, recession, policy shifts
 │   ├── properties/
 │   │   ├── __init__.py
-│   │   ├── models.py          # Property data model (from BC Assessment schema)
+│   │   ├── models.py          # Property data model (from property assessment schema)
 │   │   ├── loader.py          # Ingest from JSON/CSV/Assessment roll
 │   │   ├── features.py        # Derived scores: view, transit, schools, walkability
 │   │   └── pricing.py         # Asking price logic, price reductions over time
@@ -166,11 +166,11 @@ ENTERING → SEARCHING → SHORTLISTING → BIDDING → [WON | LOST]
 
 ## Property Model
 
-### From BC Assessment Roll
+### From Property Assessment Data
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `folio_id` | str | Unique BC Assessment identifier |
+| `folio_id` | str | Unique property identifier |
 | `assessed_value` | float | Current assessed value (what we're validating) |
 | `property_type` | enum | SFD, townhouse, condo, duplex, manufactured |
 | `bedrooms` | int | |
@@ -326,7 +326,7 @@ calculated from a formula.
 - **Current interest rate** from Bank of Canada (posted 5-year fixed: ~5.0%)
 - **Basic neighbourhood scores** (reuse from old model, good enough for MVP)
 
-### Production Quality (when BC Assessment data available)
+### Production Quality (when property assessment data is available)
 
 - **Full assessment roll** for a municipality (all folios with attributes)
 - **Historical sales data** (for calibration — did the sim predict actual sale prices?)

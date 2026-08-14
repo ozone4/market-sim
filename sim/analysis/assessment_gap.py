@@ -1,5 +1,5 @@
 """
-Assessment gap analysis — compare simulation clearing prices to BC Assessment values.
+Assessment gap analysis — compare simulation clearing prices to assessed property values.
 
 analyze_property_gap()  → per-property gap signal
 analyze_all_gaps()      → batch across all properties in a simulation result
@@ -105,7 +105,7 @@ def analyze_property_gap(
     properties: dict[str, Property],
 ) -> AssessmentGapResult:
     """
-    Analyze the gap between BC Assessment value and the simulated clearing price
+    Analyze the gap between the assessed property value and simulated clearing price
     for one property.
 
     Parameters

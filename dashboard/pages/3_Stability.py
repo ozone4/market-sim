@@ -19,7 +19,7 @@ from dashboard.utils import (  # noqa: E402
 
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 st.sidebar.markdown("## 🏠 Market Simulation Engine")
-st.sidebar.markdown("**BC Assessment Validation Tool**")
+st.sidebar.markdown("**Independent Assessment Analysis Tool**")
 st.sidebar.divider()
 
 st.sidebar.header("Stability Parameters")
