@@ -2,7 +2,7 @@
 
 ## System Overview
 
-`market-sim` is a multi-agent real estate market simulation engine for BC Assessment validation. It simulates demographically realistic buyer agents competing for properties over a 26-week period, producing emergent price signals (bidding wars, price reductions, market clearing) that can be compared against BC Assessment values.
+`market-sim` is a multi-agent real estate market simulation engine for independent assessed-value analysis. It simulates demographically realistic buyer agents competing for properties over a 26-week period, producing emergent price signals (bidding wars, price reductions, market clearing) that can be compared against assessed property values.
 
 ## Module Map
 
@@ -28,7 +28,7 @@ market-sim/
 │   │   ├── loader.py        — JSON ingestion, Pydantic validation
 │   │   └── models.py        — Property, Listing, Location, Features
 │   └── analysis/
-│       ├── assessment_gap.py — Per-property gap signal vs BC Assessment
+│       ├── assessment_gap.py — Per-property gap signal vs property assessment
 │       ├── neighbourhood.py  — Neighbourhood-level systemic signal aggregation
 │       ├── stability.py      — Multi-seed stability measurement
 │       └── report.py         — Full AnalysisReport generator
@@ -38,7 +38,7 @@ market-sim/
 │   └── schemas.py           — Pydantic v2 request/response models
 ├── data/
 │   └── properties/
-│       └── sample_victoria.json — 30 BC Assessment properties
+│       └── sample_victoria.json — 30 assessed properties
 ├── scripts/
 │   └── run_smoke_test.py    — Human-readable simulation output
 └── tests/                   — pytest test suite

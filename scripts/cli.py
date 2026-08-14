@@ -376,7 +376,7 @@ def cmd_scenarios(args: argparse.Namespace) -> int:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="cli.py",
-        description="Market Simulation — BC Assessment gap analysis tool",
+        description="Market Simulation — assessed-value gap analysis tool",
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 

@@ -2,7 +2,7 @@
 
 ## What the Simulation Does
 
-`market-sim` runs a multi-agent simulation of a residential real estate market. It does not predict prices or model appraisal outcomes. It measures how simulated buyer demand interacts with a set of properties at their assessed values, and signals whether the market would consistently clear above, below, or within tolerance of each BC Assessment value.
+`market-sim` runs a multi-agent simulation of a residential real estate market. It does not predict prices or model appraisal outcomes. It measures how simulated buyer demand interacts with a set of properties at their assessed values, and signals whether the market would consistently clear above, below, or within tolerance of each assessed property value.
 
 ## Agent Generation
 
@@ -99,7 +99,7 @@ Running the simulation multiple times with different random seeds (different age
 2. **No external comps**: Agents do not reference comparable sales when forming bids; they use financial qualification and preference scoring only
 3. **Closed market**: No cross-municipality demand, no investor speculation beyond what's in the household type distribution
 4. **Stylized auction mechanics**: The bidding war model simplifies real negotiation dynamics
-5. **Properties only**: The model does not capture land value vs. improvement value, which matters for BC Assessment methodology
+5. **Properties only**: The model does not capture land value vs. improvement value, which matters for property assessment methodology
 6. **Results are probabilistic**: Identical properties may clear at different prices across runs; use stability analysis to assess signal robustness
 
 These limitations mean simulation signals should be used for **review prioritization**, not as appraisal conclusions or market value determinations.

@@ -13,7 +13,7 @@ from api.routes import router
 app = FastAPI(
     title="Market Simulation API",
     description=(
-        "Multi-agent real estate market simulation for BC Assessment validation. "
+        "Multi-agent real estate market simulation for independent assessed-value analysis. "
         "Runs demographically-sampled buyer agents against property inventories "
         "to produce assessment gap signals and review recommendations."
     ),

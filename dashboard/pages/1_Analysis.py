@@ -23,7 +23,7 @@ from dashboard.utils import (  # noqa: E402 — after set_page_config
 
 # ── Sidebar header ─────────────────────────────────────────────────────────────
 st.sidebar.markdown("## 🏠 Market Simulation Engine")
-st.sidebar.markdown("**BC Assessment Validation Tool**")
+st.sidebar.markdown("**Independent Assessment Analysis Tool**")
 st.sidebar.divider()
 
 st.sidebar.header("Simulation Parameters")
@@ -40,7 +40,7 @@ run_btn = st.sidebar.button("Run Simulation", type="primary", use_container_widt
 
 # ── Page title ─────────────────────────────────────────────────────────────────
 st.title("Assessment Gap Analysis")
-st.markdown("Compare simulated market clearing prices against BC Assessment values.")
+st.markdown("Compare simulated market clearing prices against assessed property values.")
 
 if not run_btn:
     st.info("Configure simulation parameters in the sidebar and click **Run Simulation**.")

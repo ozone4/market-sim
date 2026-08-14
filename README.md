@@ -1,10 +1,10 @@
 # market-sim
 
-A multi-agent real estate market simulation engine for BC Assessment validation.
+A multi-agent real estate market simulation engine for independent assessed-value analysis.
 
-The system generates demographically realistic buyer agents that compete for properties over a configurable time horizon. Emergent market signals — bidding wars, price reductions, days-on-market accumulation — are compared against BC Assessment values to identify properties that may warrant reassessment review.
+The system generates demographically realistic buyer agents that compete for properties over a configurable time horizon. Emergent market signals — bidding wars, price reductions, days-on-market accumulation — are compared against assessed property values to identify properties that may warrant reassessment review.
 
-> **Disclaimer:** Results are indicators for assessment review prioritization only, not appraisal conclusions or market value determinations. All amounts in CAD.
+> **Disclaimer:** This is an independent software project and is not affiliated with or endorsed by any government assessment authority. Results are indicators for assessment review prioritization only, not appraisal conclusions or market value determinations. All amounts in CAD.
 
 ---
 

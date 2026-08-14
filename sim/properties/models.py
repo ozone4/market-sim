@@ -1,5 +1,5 @@
 """
-Property data models for the BC Assessment-based market simulation.
+Property data models for the assessed-value market simulation.
 
 Defines the core domain objects: Property (physical attributes),
 Location (spatial context), Features (boolean amenities), Listing
